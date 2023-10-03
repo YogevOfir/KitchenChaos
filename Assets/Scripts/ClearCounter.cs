@@ -2,18 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClearCounter : MonoBehaviour
-{
+public class ClearCounter : BaseCounter {
 
+    
     [SerializeField] private KitchenObjectSO kitchenObjectSO;
-    [SerializeField] private Transform counterTopPoint;
 
-    public void interact()
-    {
-        Debug.Log("Interact!");
-        Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab, counterTopPoint);
-        kitchenObjectTransform.localPosition = Vector3.zero;
 
-        Debug.Log(kitchenObjectTransform.GetComponent<KitchenObject>().GetKitchenObjectSO().objectName);
+    public override void Interact(Player player) 
+    { 
+        if (!HasKitchenObject())
+        {
+            // There is no kitchen object on the counter
+            if (player.HasKitchenObject()){
+                // Player is carrying something
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+            } else {
+                //Player not carrying anything
+            }
+        } else {
+            // There is a kitchen object on the counter
+            if (player.HasKitchenObject()){
+                // Player is carrying something
+            } else {
+                //Player not carrying anything
+                GetKitchenObject().SetKitchenObjectParent(player);
+            }
+        }
     }
+
 }

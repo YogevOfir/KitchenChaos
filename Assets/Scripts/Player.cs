@@ -4,23 +4,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
 
     public static Player Instance { get; private set; }
 
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs {
-        public ClearCounter selectedCounter;
+        public BaseCounter selectedCounter;
     }
 
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
 
     private bool isWalking;
     private Vector3 lastInteractDir;
-    private ClearCounter selectedCounter;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
+    
 
     private void Start(){
         gameInput.OnInteractAction += GameInput_OnInteractAction;
@@ -28,7 +31,7 @@ public class Player : MonoBehaviour
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e){
         if (selectedCounter != null){
-            selectedCounter.interact();
+            selectedCounter.Interact(this);
         }
     }
 
@@ -63,10 +66,10 @@ public class Player : MonoBehaviour
         // than we can check if the object that was hit has the ClearCounter component
         // if it does, we can call the interact method
         if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask)){
-            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter)){
+            if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter)){
                 // Has ClearCounter component
-                if(clearCounter != selectedCounter){
-                    SetSelectedCounter(clearCounter);
+                if(baseCounter != selectedCounter){
+                    SetSelectedCounter(baseCounter);
                 }
             } else {
                 // Does not have ClearCounter component
@@ -124,10 +127,34 @@ public class Player : MonoBehaviour
 
     }
 
-    private void SetSelectedCounter(ClearCounter clearCounter){
+    private void SetSelectedCounter(BaseCounter clearCounter){
         this.selectedCounter = clearCounter;
 
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
     }
 
+     public Transform GetKitchenObjectFollowTransform()
+    {
+       return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
 }
