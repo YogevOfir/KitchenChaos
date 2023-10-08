@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class OptionsUI : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class OptionsUI : MonoBehaviour
     [SerializeField] private Button InteractButton;
     [SerializeField] private Button InteractAlternateButton;
     [SerializeField] private Button PauseButton;
+    [SerializeField] private Button Gamepad_InteractButton;
+    [SerializeField] private Button Gamepad_InteractAlternateButton;
+    [SerializeField] private Button Gamepad_PauseButton;
 
     [SerializeField] private TextMeshProUGUI soundEffectsText;
     [SerializeField] private TextMeshProUGUI musicScrollBarText;
@@ -31,7 +35,13 @@ public class OptionsUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI InteractText;
     [SerializeField] private TextMeshProUGUI InteractAlterantText;
     [SerializeField] private TextMeshProUGUI PauseText;
+    [SerializeField] private TextMeshProUGUI Gamepad_InteractText;
+    [SerializeField] private TextMeshProUGUI Gamepad_InteractAlterantText;
+    [SerializeField] private TextMeshProUGUI Gamepad_PauseText;
     [SerializeField] private Transform pressToRebindTransform;
+
+
+    private Action onCloseButtonAction;
 
 
     
@@ -46,6 +56,7 @@ public class OptionsUI : MonoBehaviour
         });
         closeButton.onClick.AddListener(() => {
             Hide();
+            onCloseButtonAction();
         });
         musicScrollBar.onValueChanged.AddListener((value) => {
             // musicScrollBarText.text = "Music: " + Mathf.Round(value * 10f).ToString();
@@ -59,6 +70,9 @@ public class OptionsUI : MonoBehaviour
         InteractButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Interact);});
         InteractAlternateButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.InteractAlternate);});
         PauseButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Pause);});
+        Gamepad_InteractButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Gamepad_Interact);});
+        Gamepad_InteractAlternateButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Gamepad_InteractAlternate);});
+        Gamepad_PauseButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Gamepad_Pause);});
     }
 
     private void Start() {
@@ -88,12 +102,18 @@ public class OptionsUI : MonoBehaviour
         InteractText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
         InteractAlterantText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
         PauseText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Pause);
-
+        Gamepad_InteractText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Interact);
+        Gamepad_InteractAlterantText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_InteractAlternate);
+        Gamepad_PauseText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Gamepad_Pause);
     }
 
-    public void Show()
+    public void Show(Action onCloseButtonAction)
     {
+        this.onCloseButtonAction = onCloseButtonAction;
+
         gameObject.SetActive(true);
+
+        soundEffectsButton.Select();
     }
 
     public void Hide()
